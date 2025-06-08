@@ -6,5 +6,7 @@ public class Category
 {
     public int Id { get; set; }
     [MaxLength(100)]
-    public string Name { get; set; }
+    public string Name { get; set; }=string.Empty;
+    public virtual IList<Product> Products { get; set; } = [];
+  
 }
