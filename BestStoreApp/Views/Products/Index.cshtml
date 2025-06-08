@@ -1,0 +1,108 @@
+﻿
+@model List<Product>
+@{
+    ViewData["Title"] = "Index";
+    int totalPages=(int) ViewData["TotalPages"]!;
+    int pageNumber =(int) ViewData["PageNumber"]!;
+    string search =(string) ViewData["search"]!;
+
+    string column = (string)ViewData["Column"]!;
+    string orderBy = (string)ViewData["OrderBy"]!;
+
+    HtmlString getArrow(string tableColumn)
+    {
+        if (tableColumn != column) return new HtmlString("");
+
+        if (orderBy == "desc")
+        {
+            return new HtmlString("<i class='bi bi-arrow-down'></i>");
+        }
+
+        return new HtmlString("<i class='bi bi-arrow-up'></i>");
+    }
+
+}
+
+<h2 class="text-center mb-5">List of Products</h2>
+
+<div class="row mb-5">
+    <div class="col">
+        <a asp-action="Create" asp-controller="Products" class="btn btn-primary">
+            <i class="bi bi-plus me-2"></i>
+            New Product
+        </a>
+    </div>
+    <div class="col">
+        <form class="d-flex" role="search">
+            <input class="form-control me-2" type="search" name="search" value="@search" placeholder="Search by Name or Brand" aria-label="Search">
+            <button class="btn btn-outline-success" type="submit">Search</button>
+        </form>
+    </div>
+</div>
+<script>
+    function sortTable(column,pagenumber) {
+        let orderBy = "desc"
+        let currentColumn = "@column";
+        let currentOrder = "@orderBy";
+        if (column === currentColumn) {
+            if (currentOrder == "asc") orderBy = "desc";
+            else orderBy = "asc";
+        }
+        if(pagenumber!=null)
+            window.location.href = "?pageNumber=@(pageNumber)?search=@(search)&column=" + column + "&orderBy=" + orderBy
+        window.location.href = "?search=@(search)&column=" + column + "&orderBy=" + orderBy
+    }
+</script>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th style="cursor: pointer;" onclick="sortTable('Id',@pageNumber)">ID @getArrow("Id") </th>
+            <th style="cursor: pointer;" onclick="sortTable('Name',@pageNumber)">Name @getArrow("Name")</th>
+            <th style="cursor: pointer;" onclick="sortTable('Brand',@pageNumber)">Brand @getArrow("Brand")</th>
+            <th style="cursor: pointer;" onclick="sortTable('CategoryId',@pageNumber)">Category @getArrow("CategoryId")</th>
+            <th style="cursor: pointer;" onclick="sortTable('Price',@pageNumber)">Price @getArrow("Price")</th>
+            <th>Image</th>
+            <th style="cursor: pointer;" onclick="sortTable('CreateAt',@pageNumber)">Created At @getArrow("CreateAt")</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var product in Model)
+        {
+            <tr>
+                <td>@product.Id</td>
+                <td>@product.Name</td>
+                <td>@product.Brand</td>
+                <td>@product.Category.Name</td>
+                <td>@(product.Price)$</td>
+                <td><img src="/products/@product.ImageUrl" width="100" /></td>
+                <td>@product.CreateAt.ToString("MM/dd/yyyy")</td>
+                <td style="white-space:nowrap">
+                    <a class="btn btn-success btn-sm" asp-controller="Products" asp-action="Edit"
+                    asp-route-id="@product.Id"><i class="bi bi-pencil"></i> Edit</a>
+                    <a class="btn btn-danger btn-sm" asp-controller="Products" asp-action="Delete"
+                    asp-route-id="@product.Id" onclick="return confirm('Are you sure ?')">
+                        <i class="bi bi-trash"></i>Delete
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<nav >
+    <ul class="pagination pagination-sm">
+        @for (int index = 1; index < totalPages; index++)
+        {
+            string active = string.Empty;
+            if (index == pageNumber) active = "active";
+            <li class="page-item @active"><a class="page-link"
+                asp-route-pageNumber="@index" 
+                asp-route-search="@search"
+                asp-route-colum="@column"
+               asp-route-orderBy="@orderBy">@index</a></li> 
+        }
+    </ul>
+</nav>

@@ -1,4 +1,7 @@
+using BestStoreApp.Config;
+using BestStoreApp.Models;
 using BestStoreApp.Services.ApplicationDbContext;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,6 +11,22 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+});
+//Configuring Identity
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+{
+    options.Password.RequiredLength = 6;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequireLowercase = false;
+
+}).AddEntityFrameworkStores<ApplicationDbContext>()
+.AddDefaultTokenProviders();
+
+
+builder.Services.AddRouting(options =>
+{
+    options.LowercaseUrls = true;
 });
 
 var app = builder.Build();
@@ -31,4 +50,15 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
+
+// create the roles and the first admin user if not available yet
+using (var scope = app.Services.CreateScope())
+{
+    var userManager = scope.ServiceProvider.GetService(typeof(UserManager<ApplicationUser>))
+        as UserManager<ApplicationUser>;
+    var roleManager = scope.ServiceProvider.GetService(typeof(RoleManager<IdentityRole>))
+        as RoleManager<IdentityRole>;
+
+    await IdentityConfig.SeedDataAsync(userManager, roleManager);
+}
 app.Run();

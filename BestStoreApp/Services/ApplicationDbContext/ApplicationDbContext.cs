@@ -1,11 +1,16 @@
 ﻿using BestStoreApp.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 
 namespace BestStoreApp.Services.ApplicationDbContext;
 
-public class ApplicationDbContext(DbContextOptions options) : DbContext(options)
+public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 {
+    public ApplicationDbContext(DbContextOptions options):base(options)
+    {
+
+    }
     public DbSet<Product> Products { get; set; }  
     public DbSet<Category> Categories { get; set; }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
