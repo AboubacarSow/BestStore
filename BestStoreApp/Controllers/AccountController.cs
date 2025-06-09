@@ -1,4 +1,5 @@
 ﻿using BestStoreApp.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
@@ -59,4 +60,139 @@ public class AccountController : Controller
         }
         return View(registerDto);
     }
+    public async Task<IActionResult> Logout()
+    {
+        if (signInManager.IsSignedIn(User))
+            await signInManager.SignOutAsync();
+        return RedirectToAction("Index", "Home");
+    }
+    [HttpGet]
+    public IActionResult Login()
+    {
+        if(signInManager.IsSignedIn(User))
+            return RedirectToAction("Index", "Home");
+        return View();
+    }
+    [HttpPost]
+    public async Task<IActionResult> Login(LoginDto loginDto)
+    {
+        if (signInManager.IsSignedIn(User))
+            return RedirectToAction("Index", "Home");
+        if(!ModelState.IsValid) 
+            return View(loginDto);
+        var result = await signInManager.PasswordSignInAsync(loginDto.Email, loginDto.Password, loginDto.RememberMe,false);
+
+        if(result.Succeeded)
+            return RedirectToAction("Index", "Home");
+        else
+        {
+            ViewBag.ErrorMessage = "Invalid login attempt.";
+             return View(loginDto);
+        }
+
+    }
+    [Authorize]
+    [HttpGet]
+    public async Task<IActionResult> Profile()
+    {
+        var appUser = await userManager.GetUserAsync(User);
+        if (appUser == null)
+        {
+            return RedirectToAction("Index", "Home");
+        }
+
+        var profileDto = new ProfileDto()
+        {
+            FirstName = appUser.FirstName,
+            LastName = appUser.LastName,
+            Email = appUser.Email ?? "",
+            PhoneNumber = appUser.PhoneNumber,
+            Address = appUser.Address,
+        };
+
+        return View(profileDto);
+    }
+   
+    [Authorize]
+    [HttpPost]
+    public async Task<IActionResult> Profile(ProfileDto profileDto)
+    {
+        if (!ModelState.IsValid)
+        {
+            ViewBag.ErrorMessage = "Please fill all the required fields with valid values";
+            return View(profileDto);
+        }
+
+        // Get the current user
+        var appUser = await userManager.GetUserAsync(User);
+        if (appUser == null)
+        {
+            return RedirectToAction("Index", "Home");
+        }
+
+        // Update the user profile
+        appUser.FirstName = profileDto.FirstName;
+        appUser.LastName = profileDto.LastName;
+        appUser.UserName = profileDto.Email;
+        appUser.Email = profileDto.Email;
+        appUser.PhoneNumber = profileDto.PhoneNumber;
+        appUser.Address = profileDto.Address;
+
+        var result = await userManager.UpdateAsync(appUser);
+
+        if (result.Succeeded)
+        {
+            ViewBag.SuccessMessage = "Profile updated successfully";
+        }
+        else
+        {
+            ViewBag.ErrorMessage = "Unable to update the profile: " + result.Errors.First().Description;
+        }
+
+
+        return View(profileDto);
+    }
+    [Authorize]
+    public IActionResult Password()
+    {
+        return View();
+    }
+
+
+    [Authorize]
+    [HttpPost]
+    public async Task<IActionResult> Password(PasswordDto passwordDto)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View();
+        }
+
+        // Get the current user
+        var appUser = await userManager.GetUserAsync(User);
+        if (appUser == null)
+        {
+            return RedirectToAction("Index", "Home");
+        }
+
+        // update the password
+        var result = await userManager.ChangePasswordAsync(appUser,
+            passwordDto.CurrentPassword, passwordDto.NewPassword);
+
+        if (result.Succeeded)
+        {
+            ViewBag.SuccessMessage = "Password updated successfully!";
+        }
+        else
+        {
+            ViewBag.ErrorMessage = "Error: " + result.Errors.First().Description;
+        }
+
+        return View();
+    }
+    public IActionResult AccessDenied()
+    {
+        return RedirectToAction("Index", "Home");
+    }
+
 }
