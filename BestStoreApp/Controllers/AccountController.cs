@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
 
 namespace BestStoreApp.Controllers;
@@ -195,4 +197,16 @@ public class AccountController : Controller
         return RedirectToAction("Index", "Home");
     }
 
+    [HttpGet]
+    public IActionResult ForgotPassword()
+    {
+        if (signInManager.IsSignedIn(User))
+            return RedirectToAction("Index","Home");
+        return View();
+    }
+    [HttpPost]
+    public IActionResult ForgotPassword([Required,EmailAddress]string email)
+    {
+        return View(email);
+    }
 }
