@@ -1,10 +1,9 @@
 ﻿using BestStoreApp.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
-using System.Diagnostics.Contracts;
-using System.Threading.Tasks;
 
 namespace BestStoreApp.Controllers;
 
@@ -12,11 +11,15 @@ public class AccountController : Controller
 {
     private readonly UserManager<ApplicationUser> userManager;
     private readonly SignInManager<ApplicationUser> signInManager;
+    private readonly IEmailSender EmailSender;
 
-    public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
+
+    public AccountController(UserManager<ApplicationUser> userManager, 
+        SignInManager<ApplicationUser> signInManager, IEmailSender emailSender)
     {
         this.userManager = userManager;
         this.signInManager = signInManager;
+        this.EmailSender = emailSender;
     }
 
     public IActionResult Index()
@@ -205,8 +208,36 @@ public class AccountController : Controller
         return View();
     }
     [HttpPost]
-    public IActionResult ForgotPassword([Required,EmailAddress]string email)
+    public async Task<IActionResult> ForgotPassword([Required,EmailAddress]string email)
     {
-        return View(email);
+        if(signInManager.IsSignedIn(User)) return RedirectToAction("Index","Home");
+
+        ViewBag.Email = email;
+
+        if (!ModelState.IsValid)
+        {
+            ViewBag.EmailError = ModelState["email"]?.Errors.First().ErrorMessage ?? "Invalid Email Address";
+            return View();
+        }
+        var user=await userManager.FindByEmailAsync(email);
+        if (user == null)
+        {
+            ViewBag.EmailError = $"The user with email: {email} does not exist";
+            return View();
+        }
+        var token = await userManager.GeneratePasswordResetTokenAsync(user);
+        string resetUrl = Url.ActionLink("ResetPassword", "Account", new { token }) ?? "URL Error";
+
+        string username = user.FirstName + " " + user.LastName;
+        string subject = "Reset Password Request";
+        string message = $"Dear <strong>  {username} </strong> <br/><br/>" +
+                         $"You can reset your password using the following link:<br/><br/>" +
+                         $"<a href='{resetUrl}' target='_blank'> <strong>Reset my password </strong></a><br/><br/>" +
+                         $"Best Regards";
+        await EmailSender.SendEmailAsync(email,subject,message);
+        ViewBag.SuccessMessage = "Please check your Email account and click on the Password Reset link!";
+
+        return View();
     }
+    
 }

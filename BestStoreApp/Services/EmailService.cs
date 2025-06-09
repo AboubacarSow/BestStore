@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Options;
-using SendGrid.Helpers.Mail;
+﻿using SendGrid.Helpers.Mail;
 using SendGrid;
 using Microsoft.AspNetCore.Identity.UI.Services;
 
@@ -14,23 +13,24 @@ public class EmailSender : IEmailSender
         _logger = logger;
         _configuration = configuration;
     }
-    public async Task SendEmailAsync(string toEmail, string subject, string message)
+    public async Task SendEmailAsync(string email, string subject, string htmlMessage)
     {
-        var apiKey = _configuration.GetSection("SendGriKey:ApiKey").Value;
+        var apiKey = _configuration.GetSection("SendGridSettings:BestStore").Value;
         if (string.IsNullOrEmpty(apiKey))
         {
             throw new Exception("Null SendGridKey");
         }
-        await Execute(apiKey, subject, message, toEmail);
+        await Execute(apiKey, subject, htmlMessage, email);
     }
 
     public async Task Execute(string apiKey, string subject, string message, string toEmail)
     {
         var client = new SendGridClient(apiKey);
         var senderEmail = _configuration.GetSection("SendGridSettings:SenderEmail").Value;
+        var senderName = _configuration.GetSection("SendGridSettings:SenderName").Value ?? "Reset Password";
         var msg = new SendGridMessage()
         {
-            From = new EmailAddress(senderEmail, "Reset Password"),
+            From = new EmailAddress(senderEmail, senderName),
             Subject = subject,
             PlainTextContent = message,
             HtmlContent = message
