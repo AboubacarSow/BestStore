@@ -27,7 +27,7 @@ namespace BestStoreApp.Controllers
             this.userManager = userManager;
             this.logger = logger;
         }
-        public IActionResult Ckeckout()
+        public IActionResult Checkout()
         {
             List<OrderItem> cartItems = CartHelper.GetCartItems(Request, Response, context);
             decimal total = CartHelper.GetSubtotal(cartItems) + shippingFee;

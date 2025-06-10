@@ -100,60 +100,68 @@
 <div class="border rounded pt-3 pb-0 px-4 mb-2">
 
     <table class="table">
-    <thead class="text-light bg-secondary">
-        <tr>
-            <th style="width: 100px">Description</th>
-            <th></th>
-            <th style="width:100px">Units</th>
-            <th style="width:100px">Amount</th>
-        </tr>
-    </thead>
-    <tbody>
-        @{
-            decimal subtotal = 0;
-            foreach (var item in Model.Items)
-            {
-                subtotal += item.UnitPrice * item.Quantity;
+        <thead class="text-light bg-secondary">
+            <tr>
+                <th style="width: 100px">Description</th>
+                <th></th>
+                <th style="width:100px">Units</th>
+                <th style="width:100px">Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                decimal subtotal = 0;
+                foreach (var item in Model.Items)
+                {
+                    subtotal += item.UnitPrice * item.Quantity;
 
-                <tr>
-                    <td>
-                        <img src="/products/@item.Product.ImageUrl" width="100" alt="..." />
-                    </td>
-                    <td>
-                        <h4>
-                            <a style="text-decoration: none; color: inherit;" asp-controller="Store"
-                               asp-action="Details" asp-route-id="@item.Product.Id">
-                                @item.Product.Name
-                            </a>
-                        </h4>
-                        @item.Product.Category<br>
-                        @(item.UnitPrice)$
-                    </td>
-                    <td>@item.Quantity</td>
-                    <td >@(item.UnitPrice * item.Quantity)$</td>
-                </tr>
+                    <tr>
+                        <td>
+                            <img src="/products/@item.Product.ImageUrl" width="100" alt="..." />
+                        </td>
+                        <td>
+                            <h4>
+                                <a style="text-decoration: none; color: inherit;" asp-controller="Store"
+                                asp-action="Details" asp-route-id="@item.Product.Id">
+                                    @item.Product.Name
+                                </a>
+                            </h4>
+                            @item.Product.Category<br>
+                            @(item.UnitPrice)$
+                        </td>
+                        <td>@item.Quantity</td>
+                        <td >@(item.UnitPrice * item.Quantity)$</td>
+                    </tr>
+                }
             }
-        }
-    </tbody>
-</table>
+        </tbody>
+    </table>
 </div>
 
 
 <div class="border rounded py-3 px-4 mt-3">
     <div class="ms-auto mb-3" style="width: 250px">
-    <div class="row">
-        <div class="col fw-bold">Subtotal:</div>
-        <div class="col text-end">@(subtotal)$</div>
+        <div class="row">
+            <div class="col fw-bold">Subtotal:</div>
+            <div class="col text-end">@(subtotal)$</div>
+        </div>
+        <div class="row">
+            <div class="col fw-bold">Shipping Fee:</div>
+            <div class="col text-end">@(Model.ShippingFee)$</div>
+        </div>
+        <div class="row">
+            <div class="col fw-bold">Total:</div>
+            <div class="col text-end text-danger">@(subtotal + Model.ShippingFee)$</div>
+        </div>
+        @if (Model.PaymentStatus != "accepted" && (Model.PaymentMethod == "stripe" || Model.PaymentMethod == "credit_card"))
+        {
+            <div class="">
+                <a asp-action="Checkout" asp-controller="Payment" class="btn btn-outline-primary text-nowrap">
+                    Check Out
+                </a>
+            </div>   
+        }
     </div>
-    <div class="row">
-        <div class="col fw-bold">Shipping Fee:</div>
-        <div class="col text-end">@(Model.ShippingFee)$</div>
-    </div>
-    <div class="row">
-        <div class="col fw-bold">Total:</div>
-        <div class="col text-end text-danger">@(subtotal + Model.ShippingFee)$</div>
-    </div>
-</div>
 
 </div>
 
