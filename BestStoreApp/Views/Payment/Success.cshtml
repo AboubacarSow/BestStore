@@ -9,10 +9,6 @@
     </div>
     <p>Thank you for your purchase. A receipt has been sent to your email.</p>
     <a href="/" class="btn btn-primary">Return to Home</a>
-    <a href="https://dashboard.stripe.com/payments/@TempData["PaymentId"]"
-       target="_blank" class="btn btn-outline-info">
-        View Receipt
-    </a>
     <!-- Optionnel : Afficher des détails depuis TempData -->
     @if (TempData["PaymentId"] != null)
     {

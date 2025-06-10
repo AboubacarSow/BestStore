@@ -153,15 +153,15 @@
             <div class="col fw-bold">Total:</div>
             <div class="col text-end text-danger">@(subtotal + Model.ShippingFee)$</div>
         </div>
-        @if (Model.PaymentStatus != "accepted" && (Model.PaymentMethod == "stripe" || Model.PaymentMethod == "credit_card"))
+    </div>
+        @if (Model.PaymentStatus != "completed" && (Model.PaymentMethod == "stripe" || Model.PaymentMethod == "credit_card"))
         {
-            <div class="">
-                <a asp-action="Checkout" asp-controller="Payment" class="btn btn-outline-primary text-nowrap">
-                    Check Out
+            <div>
+                <a asp-action="Checkout" asp-controller="Payment" class="btn btn-outline-primary text-nowrap w-100">
+                    <i class="bi bi-bag-check-fill me-2"></i> Check Out
                 </a>
             </div>   
         }
-    </div>
 
 </div>
 

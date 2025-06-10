@@ -4,15 +4,30 @@
     ViewData["Title"] = "Checkout";
 }
 
-<div class="container mt-5 mx-auto border rounded">
-    <h2>Complete Your Order</h2>
+<div class="container mt-5 mx-auto border rounded shadow w-50 py-3">
+    <h2 class="text-center text-secondary">Complete Your Order</h2>
+    <hr />
     <div class="mx-auto p-4 ">
-        <p>Total Amount: @(ViewBag.DisplayAmount)$</p>
-        <p>Delivery Address: @ViewBag.DeliveryAddress</p>
-        <br />
+        <div class="row">
+            <div class="col fw-bold">
+                <p>Total Amount:</p>
+            </div>
+            <div class="col text-end text-danger">
+                @(ViewBag.DisplayAmount)$
+            </div>
+        </div>
+        <div class="row">
+            <div class="col fw-bold">
+                Delivery Address:
+            </div>
+            <div class="col text-end">
+                @ViewBag.DeliveryAddress
+            </div>
+        </div>
+        <hr />
     </div>
-    <div class="row">
-        <div class="col-md-6">
+    <div class="row p-4">
+        <div class="col-md-12">
             <!-- Stripe Card Element -->
             <form id="payment-form">
                 <div class="form-group">
@@ -20,11 +35,27 @@
                     <div id="card-element" class="form-control" style="height: 40px; padding: 10px;"></div>
                     <div id="card-errors" class="text-danger mt-2" role="alert"></div>
                 </div>
-                <button id="submit-button" class="btn btn-primary w-100 mt-3 text-nowrap">
-                    <i class="bi bi-stripe me-2"></i> Pay with Stripe
-                </button>
+                <div class="d-flex flex-column g-3">
+                    <button id="submit-button" class="btn btn-primary w-100 mt-3 text-nowrap">
+                        <i class="bi bi-stripe me-2"></i> Pay with Stripe
+                    </button>
+                    <a class="btn btn-outline-danger w-100 text-nowrap mt-3">
+                        <i class="bi bi-x"></i> cancel
+                    </a>
+                </div>
             </form>
         </div>
+    </div>
+
+    <div class="mx-auto mt-3">
+        <p class="text-muted text-center">
+            <span class="fw-bold">
+                30-Day Money-Back Guarantee
+            </span><br />
+            <span class="text-center text-primary text-muted">
+                Not satisfied? Get a full refund within 30 days. Simple and straightforward!
+            </span>
+        </p>
     </div>
 </div>
 
@@ -34,18 +65,28 @@
     var stripe = Stripe('@ViewBag.StripePublishableKey');
     var elements = stripe.elements();
     var due_amount=@Html.Raw(Json.Serialize(ViewBag.AmountInCents));
+    var delivered_address='@ViewBag.DeliveryAddress';
 
 
     // Style the Card Element
-    var style = {
+        var style = {
         base: {
             fontSize: '16px',
             color: '#32325d',
+            '::placeholder': {
+                color: '#aab7c4'
+            }
+        },
+        invalid: {
+            color: '#fa755a'
         }
     };
 
-    // Create and mount the Card Element
-    var card = elements.create('card', { style: style });
+    var card = elements.create('card', {
+        style: style,
+        hidePostalCode: false  // Optional: Remove ZIP field if not needed
+    });
+
     card.mount('#card-element');
 
     // Handle real-time validation errors
@@ -77,7 +118,9 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ token: result.token.id, 
-                                           amount:due_amount })
+                                           amount:due_amount,
+                                           deliveredAddress:delivered_address
+                                          })
                 }).then(function(response) {
                     return response.json();
                 }).then(function(data) {

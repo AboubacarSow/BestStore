@@ -119,7 +119,7 @@ public class CartController : Controller
             DeliveryAddress = deliveryAddress,
             PaymentMethod = paymentMethod,
             PaymentStatus = "pending",
-            PaymentDetails = "",
+            PaymentDetails = new PaymentDetails(),
             OrderStatus = "created",
             CreatedAt = DateTime.Now,
         };
@@ -127,7 +127,7 @@ public class CartController : Controller
         context.SaveChanges();
         //delete shopping cookie
         Response.Cookies.Delete("shopping_cart");
-
+        ViewBag.PaymentMethod=paymentMethod;
         ViewBag.SuccessMessage = "Order created successfully";
         return View();
     }

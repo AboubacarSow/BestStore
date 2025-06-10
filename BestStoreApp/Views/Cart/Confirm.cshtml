@@ -2,14 +2,33 @@
 @{
     ViewData["Title"] = "Confirm";
 }
-<div class="mx-auto rounded border p-4" style="width: 420px">
-    <h2 class="text-center mb-3">Order Details</h2>
+<div class="mx-auto rounded border p-4 shadow" style="width: 450px">
+    <h2 class="text-center mb-3 text-secondary">Order Details</h2>
     <hr />
 
     @if (ViewBag.SuccessMessage != null)
     {
         <div class="alert alert-success" role="alert">@ViewBag.SuccessMessage</div>
-        <a class="btn btn-outline-primary" asp-controller="ClientOrders" asp-action="Index">Back</a>
+        @if(ViewBag.PaymentMethod!=null && (ViewBag.PaymentMethod=="stripe" || ViewBag.PaymentMethod == "credit_card"))
+        {
+            <div class="d-flex justify-content-between ">
+                <a asp-action="Checkout" asp-controller="Payment" class="btn btn-outline-light text-dark text-nowrap">
+                    <i class="bi bi-bag-check-fill me-2"></i>
+                    Checkout</a>
+                <a class="btn btn-outline-primary text-nowrap" asp-controller="ClientOrders" asp-action="Index">
+                    <i class="bi bi-arrow-left me-2"></i>
+                    Back to Orders
+                </a>
+
+            </div>
+        }
+        else
+        {
+            <a class="btn btn-outline-primary text-nowrap" asp-controller="ClientOrders" asp-action="Index">
+                <i class="bi bi-arrow-left me-2"></i>
+                Back to Orders
+            </a>
+        }
     }
     else
     {
