@@ -3,6 +3,33 @@
     ViewData["Title"] = "Index";
 }
 
+
+@if (ViewBag.Subtotal <= 0)
+{
+    <div class="container">
+
+        <div class="alert alert-info" role="alert">
+            <p class="text-center text-dark"> There is no cart !</p>
+        </div>
+
+        <div class="d-flex justify-content-center">
+            <a asp-action="Index" asp-controller="Home" class="btn btn-outline-secondary text-nowrap me-4">
+                <i class="bi bi-house me-2"></i>
+                Home
+            </a>
+            
+            <a asp-action="Index" asp-controller="Products" class="btn btn-primary me-2">
+                <i class="bi bi-shop-window"></i>
+                Store
+            </a>
+            
+        </div>
+
+    </div>
+}
+else
+{
+    
 <div class="row border rounded-3">
     <div class="col-md-8 p-3">
         <h4>Shopping Cart</h4>
@@ -100,7 +127,7 @@
                         <select class="form-select" asp-for="PaymentMethod">
                             <option value="cash">Cash on Delivery</option>
                             <option value="credit_card">Credit Card</option>
-                            <option value="paypal">Paypal</option>
+                            <option value="stripe">Stripe</option>
                         </select>
                     </div>
 
@@ -144,4 +171,6 @@
     </div>
     
 </div>
+}
+
 

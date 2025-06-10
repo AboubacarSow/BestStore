@@ -56,6 +56,10 @@ public class CartController : Controller
 
         TempData["DeliveryAddress"] = checkDto.DeliveryAddress;
         TempData["PaymentMethod"] = checkDto.PaymentMethod;
+        if (checkDto.PaymentMethod == "stripe" || checkDto.PaymentMethod == "credit_card")
+        {
+            return RedirectToAction("Checkout", "Payment");
+        }
         return RedirectToAction("Confirm");
     }
     [Authorize]

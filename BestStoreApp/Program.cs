@@ -1,10 +1,12 @@
 using BestStoreApp.Config;
+using BestStoreApp.Infrastructure.Utilities;
 using BestStoreApp.Models;
 using BestStoreApp.Services;
 using BestStoreApp.Services.ApplicationDbContext;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
+using Stripe;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,6 +33,9 @@ builder.Services.AddRouting(options =>
     options.LowercaseUrls = true;
 });
 builder.Services.AddTransient<IEmailSender, EmailSender>();
+builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection(nameof(StripeSettings)));
+StripeConfiguration.ApiKey = builder.Configuration.GetValue<string>("StripeSettings:SecretKey");
+
 
 var app = builder.Build();
 
