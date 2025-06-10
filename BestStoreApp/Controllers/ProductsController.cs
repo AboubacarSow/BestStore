@@ -4,9 +4,10 @@ using BestStoreApp.Services.ApplicationDbContext;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Data;
 
 namespace BestStoreApp.Controllers;
-[Authorize(Roles ="Admin")]
+[Authorize(Roles = "admin")]
 [Route("/Admin/[controller]/{action=Index}/{id?}")]
 public class ProductsController(ApplicationDbContext context) : Controller
 {

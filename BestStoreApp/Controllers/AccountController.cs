@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
+using System.Threading.Tasks;
 
 namespace BestStoreApp.Controllers;
 
@@ -239,5 +240,46 @@ public class AccountController : Controller
 
         return View();
     }
-    
+    [HttpGet]
+    public IActionResult ResetPassword(string? token)
+    {
+        if (signInManager.IsSignedIn(User)) 
+            return RedirectToAction("Index", "Home");
+        if(string.IsNullOrEmpty(token))
+            return RedirectToAction("Index", "Home");
+        
+        return View();
+    }
+    [HttpPost]  
+    public async Task<IActionResult> ResetPassword(string ? token,PasswordResetDto passwordDto)
+    {
+        if (signInManager.IsSignedIn(User)) 
+            return RedirectToAction("Index", "Home");
+        if (string.IsNullOrEmpty(token))
+            return RedirectToAction("Index", "Home");
+        if (!ModelState.IsValid)
+        {
+            return View(passwordDto);
+        }
+        var user=await userManager.FindByEmailAsync(passwordDto.Email);
+        if (user == null)
+        {
+            ViewBag.ErrorMessage = "Token not valid!";
+            return View(passwordDto);
+        }
+        var result=await userManager.ResetPasswordAsync(user,token,passwordDto.Password);
+        if (result.Succeeded)
+        {
+            ViewBag.SuccessMessage = "Password reset successfully!";
+        }
+        else
+        {
+            foreach(var error in result.Errors)
+            {
+                ModelState.AddModelError("", error.Description);
+            }
+        }
+
+        return View(passwordDto);  
+    }
 }
