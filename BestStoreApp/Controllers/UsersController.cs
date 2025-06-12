@@ -1,4 +1,5 @@
 ﻿using BestStoreApp.Models;
+using BestStoreApp.Services.ApplicationDbContext;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -14,11 +15,14 @@ public class UsersController : Controller
 {
     private readonly UserManager<ApplicationUser> userManager;
     private readonly RoleManager<IdentityRole> roleManager;
+    private readonly ApplicationDbContext context;
     private readonly int PageSize = 5;
-    public UsersController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
+    public UsersController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager,
+        ApplicationDbContext context)
     {
         this.userManager = userManager;
         this.roleManager = roleManager;
+        this.context = context;
     }
 
     public IActionResult Index(int pageNumber)
@@ -126,7 +130,13 @@ public class UsersController : Controller
             TempData["ErrorMessage"] = "You cannot delete your own account!";
             return RedirectToAction("Details", "Users", new { id });
         }
-
+        var orders= context.Orders.Where(o=>o.ClientId == appUser.Id).ToList();
+        foreach (var order in orders)
+        {
+            order.Items.Clear();
+        }
+        context.Orders.RemoveRange(orders);
+        context.SaveChanges();  
         // delete user account
         var result = await userManager.DeleteAsync(appUser);
         if (result.Succeeded)

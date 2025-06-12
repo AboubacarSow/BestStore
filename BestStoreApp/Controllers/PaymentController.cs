@@ -63,18 +63,7 @@ namespace BestStoreApp.Controllers
                 TempData["PaymentId"] = charge.Id;
 
                 logger.LogInformation(message: $"Stripe Payment succed.ID:{charge.Id}");
-                var details = new PaymentDetails
-                {
-                    Id=charge.PaymentIntentId,
-                    StripeChargeId = charge.Id,
-                    Amount = charge.Amount,
-                    Currency = charge.Currency,
-                    Method = charge.PaymentMethod,
-                    PaidAt = charge.Created,
-                    Status = charge.Status,
-                    CardLast4Digits = charge.PaymentMethodDetails.Card?.Last4!,
-                   
-                };
+                var paymentDetailsId=charge.Id;
                 var appUser = await userManager.GetUserAsync(User);
                 if (appUser == null) return RedirectToAction("Index", "Home");
                 var body = $"<h3>Thank you for your purchase, {appUser?.FirstName} {appUser?.LastName}!</h3>" +
@@ -84,8 +73,8 @@ namespace BestStoreApp.Controllers
                         $"<a href='https://dashboard.stripe.com/payments/{charge.Id}'> Receipt</a> </p>";
                 var subject = "Your Receipt for your purchase";
                 await emailSender.SendEmailAsync(appUser?.Email!,subject,body);
-                await SaveOrderAsync(request.DeliveredAddress, details);
-                return Json(new { success = true, redirectUrl = Url.Action("Success","Payment") });
+                await SaveOrderAsync(request.DeliveredAddress, paymentDetailsId);
+                return Json(new { success = true });
             }
             catch (StripeException e)
             {
@@ -104,7 +93,7 @@ namespace BestStoreApp.Controllers
         }
 
 
-        private async Task SaveOrderAsync(string address, PaymentDetails paymentDetails)
+        private async Task SaveOrderAsync(string address, string paymentDetails)
         {
             var cartItems = CartHelper.GetCartItems(Request, Response, context);
 
@@ -123,7 +112,7 @@ namespace BestStoreApp.Controllers
                 DeliveryAddress = address,
                 PaymentMethod = "stripe",
                 PaymentStatus = "completed",
-                PaymentDetailsId=paymentDetails.Id,
+                PaymentDetailsId=paymentDetails,
                 OrderStatus = "on processing",
                 CreatedAt = DateTime.Now,
             };

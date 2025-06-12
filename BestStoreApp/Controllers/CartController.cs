@@ -119,7 +119,7 @@ public class CartController : Controller
             DeliveryAddress = deliveryAddress,
             PaymentMethod = paymentMethod,
             PaymentStatus = "pending",
-            PaymentDetails = new PaymentDetails(),
+            PaymentDetailsId =string.Empty ,
             OrderStatus = "created",
             CreatedAt = DateTime.Now,
         };

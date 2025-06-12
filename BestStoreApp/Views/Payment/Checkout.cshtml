@@ -125,7 +125,7 @@
                     return response.json();
                 }).then(function(data) {
                     if (data.success) {
-                        window.location.href = data.redirectUrl;
+                        window.location.href = "/Payment/Success";
                     } else {
                         alert('Payment failed: ' + data.error);
                         document.getElementById('submit-button').disabled = false;

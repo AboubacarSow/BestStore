@@ -6,7 +6,7 @@
     {
         paymentBadgeColor = "bg-warning text-dark";
     }
-    else if (Model.PaymentStatus == "accepted")
+    else if (Model.PaymentStatus == "accepted" || Model.PaymentStatus=="completed")
     {
         paymentBadgeColor = "bg-success";
     }
@@ -284,55 +284,14 @@
             </div>
             <div class="modal-body">
 
-                <p style="white-space: pre-wrap; font-family: monospace">@Html.Raw(Model.PaymentDetails)</p>
-                @if (Model.PaymentMethod==null)
+                @if (String.IsNullOrEmpty(Model.PaymentDetailsId))
                 {
                     <p class="text-warning my-2 mx-auto"> Payment is not done yet!</p>
                 }
                 else
                 {
-                    
-                    <div class="row">
-                        <div class="col fw-bold">
-                            Total Amount: 
-                        </div>
-                        <div class="col text-end text-danger">
-                            @Model.PaymentDetails?.Amount 
-                        </div>
-                    </div>
 
-                    <div class="row">
-                        <div class="col fw-bold">
-                            Currency: 
-                        </div>
-                        <div class="col text-end text-secondary">
-                            @Model.PaymentDetails?.Currency
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col fw-bold">
-                            Payment Method: 
-                        </div>
-                        <div class="col text-end text-danger">
-                            @Model.PaymentDetails?.Method
-                        </div>
-                    </div>
-                     <div class="row">
-                        <div class="col fw-bold">
-                            Card: 
-                        </div>
-                        <div class="col text-end text-danger">
-                          **** **** **** @Model.PaymentDetails?.CardLast4Digits
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col fw-bold">
-                            Date Of Payment: 
-                        </div>
-                        <div class="col text-end text-danger">
-                            @Model.PaymentDetails?.PaidAt.ToString()
-                        </div>
-                    </div>
+                    <a href="https://dashboard.stripe.com/payments/@Model.PaymentDetailsId"> See the receipt</a>
 
                 }
 

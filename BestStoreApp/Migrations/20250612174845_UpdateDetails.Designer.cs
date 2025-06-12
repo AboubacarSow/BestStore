@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BestStoreApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250610222525_UpdatePaymentDetails")]
-    partial class UpdatePaymentDetails
+    [Migration("20250612174845_UpdateDetails")]
+    partial class UpdateDetails
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -181,8 +181,9 @@ namespace BestStoreApp.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("PaymentDetailsId")
-                        .HasColumnType("int");
+                    b.Property<string>("PaymentDetailsId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PaymentMethod")
                         .IsRequired()
@@ -199,8 +200,6 @@ namespace BestStoreApp.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ClientId");
-
-                    b.HasIndex("PaymentDetailsId");
 
                     b.ToTable("Orders");
                 });
@@ -233,48 +232,6 @@ namespace BestStoreApp.Migrations
                     b.HasIndex("ProductId");
 
                     b.ToTable("OrderItems");
-                });
-
-            modelBuilder.Entity("BestStoreApp.Models.PaymentDetails", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<long?>("Amount")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("CardLast4Digits")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Currency")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Method")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("PaidAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("PaymentId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Status")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("StripeChargeId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("PaymentDetails");
                 });
 
             modelBuilder.Entity("BestStoreApp.Models.Product", b =>
@@ -462,13 +419,7 @@ namespace BestStoreApp.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("BestStoreApp.Models.PaymentDetails", "PaymentDetails")
-                        .WithMany()
-                        .HasForeignKey("PaymentDetailsId");
-
                     b.Navigation("Client");
-
-                    b.Navigation("PaymentDetails");
                 });
 
             modelBuilder.Entity("BestStoreApp.Models.OrderItem", b =>
